@@ -3,9 +3,31 @@
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 
-// Dynamically import Chart.js
-const Chart = dynamic(() => import('chart.js/auto'), { ssr: false });
-const { Line, Bar } = dynamic(() => import('react-chartjs-2'), { ssr: false });
+// Import Chart.js directly for client-side rendering
+import Chart from 'chart.js/auto';
+
+// Add proper Chart.js categories for TypeScript
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface WeatherData {
   location: {

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App with Heatmaps & AI</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+        crossorigin="">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-dark py-3">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row align-items-center">
+                <h1 class="mb-3 mb-md-0 me-md-auto">
+                    <i class="fas fa-cloud me-2 text-info"></i>
+                    Weather App
+                </h1>
+                
+                <!-- Search Box -->
+                <div class="search-container">
+                    <form id="search-form" class="d-flex">
+                        <div class="input-group">
+                            <input type="text" id="search-input" class="form-control" 
+                                   placeholder="Search for a location..." aria-label="Search" required>
+                            <button class="btn btn-info" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="search-results" class="list-group search-results shadow-lg"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="py-4 content-wrapper">
+        <div class="container">
+            <!-- Error Container -->
+            <div id="error-container" class="mb-4"></div>
+            
+            <!-- Map Section -->
+            <section class="mb-4">
+                <div class="card bg-dark">
+                    <div class="card-body">
+                        <h2 class="card-title mb-3">
+                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                            Interactive Weather Map
+                        </h2>
+                        <p class="card-text text-light mb-4">
+                            Click anywhere on the map to see detailed weather information or use the search box above.
+                            Toggle between different heatmap layers using the buttons in the top-right corner of the map.
+                        </p>
+                        <div id="map-container"></div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Weather Information Section -->
+            <section class="row">
+                <!-- Current Weather -->
+                <div class="col-md-6 mb-4">
+                    <div id="weather-current">
+                        <div class="card weather-card bg-dark text-light">
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-map-pin fa-2x mb-3 text-info"></i>
+                                <h3>Click on the map or search for a location</h3>
+                                <p class="text-light">Weather information will be displayed here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Description -->
+                <div class="col-md-6 mb-4">
+                    <div id="weather-description">
+                        <div class="card weather-card bg-dark text-light">
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-robot fa-2x mb-3 text-info"></i>
+                                <h3>AI Weather Insights</h3>
+                                <p class="text-light">Select a location to get AI-powered weather description</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Forecast -->
+                <div class="col-12 mb-4">
+                    <div id="weather-forecast">
+                        <div class="card weather-card bg-dark text-light">
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-calendar-alt fa-2x mb-3 text-info"></i>
+                                <h3>Weather Forecast</h3>
+                                <p class="text-light">Select a location to view the forecast</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Weather App with Heatmaps & AI</h5>
+                    <p>Get real-time weather data with interactive heatmaps and AI-powered descriptions.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>
+                        <small>Powered by OpenWeatherMap API & OpenAI</small><br>
+                        <small>&copy; 2024 Weather App. All rights reserved.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+        crossorigin=""></script>
+    
+    <!-- Leaflet Heat Plugin -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

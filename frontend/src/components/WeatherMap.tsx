@@ -1,25 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
-
-// Dynamically import Leaflet components (client-side only)
-const MapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Marker),
-  { ssr: false }
-);
-const useMap = dynamic(
-  () => import('react-leaflet').then((mod) => mod.useMap),
-  { ssr: false }
-);
+import LeafletMap from './LeafletMap';
+import { MapContainer, TileLayer, Marker, useMap, L } from './LeafletComponents';
 
 interface HeatmapData {
   lat: number;

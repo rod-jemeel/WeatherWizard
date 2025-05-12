@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 # OpenAI configuration
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+# Initialize the OpenAI client without any additional parameters to avoid errors
+# The 'proxies' parameter was causing issues in the deployment environment
 openai = OpenAI(api_key=OPENAI_API_KEY)
 
 def generate_weather_description(weather_data):
@@ -63,9 +65,15 @@ def generate_weather_description(weather_data):
             temperature=0.7,
         )
         
-        # Extract the generated description
-        description = response.choices[0].message.content.strip()
-        return description
+        # Extract the generated description with proper error handling
+        if response and response.choices and len(response.choices) > 0:
+            if response.choices[0].message and response.choices[0].message.content:
+                description = response.choices[0].message.content.strip()
+                return description
+        
+        # If we get here, something went wrong with the response structure
+        logger.warning("Incomplete response from OpenAI API, using fallback")
+        return generate_fallback_description(weather_data)
     
     except Exception as e:
         logger.error(f"Error generating weather description with OpenAI: {str(e)}")

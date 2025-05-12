@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 # OpenAI configuration
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "your_openai_api_key")
+# Initialize the OpenAI client without any additional parameters to avoid errors
+# Do not use 'proxies' parameter as it is not supported in the current version
 openai = OpenAI(api_key=OPENAI_API_KEY)
 
 def generate_weather_description(weather_data):

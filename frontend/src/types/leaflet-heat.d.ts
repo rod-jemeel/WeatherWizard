@@ -1,11 +1,5 @@
 import * as L from "leaflet";
 
-declare global {
-  interface Window {
-    L: typeof L;
-  }
-}
-
 declare module "leaflet" {
   namespace L {
     function heatLayer(
@@ -40,5 +34,3 @@ declare module "leaflet" {
     }
   }
 }
-
-export {};

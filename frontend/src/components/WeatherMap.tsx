@@ -1,14 +1,29 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import LeafletMap from './LeafletMap';
-import { MapContainer, TileLayer, Marker, useMap, L } from './LeafletComponents';
+import dynamic from 'next/dynamic';
 
-interface HeatmapData {
-  lat: number;
-  lng: number;
-  value: number;
-}
+// Import types only (no code) for TypeScript
+import type { LatLngBounds, LatLngExpression } from 'leaflet';
+
+// Use a single dynamic import for the Map components
+// This improves code quality and deployment reliability
+const MapWithComponents = dynamic(
+  () => import('./MapWithComponents'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="map-container d-flex justify-content-center align-items-center bg-dark">
+        <div className="text-center">
+          <div className="spinner-border text-info" role="status">
+            <span className="visually-hidden">Loading map...</span>
+          </div>
+          <p className="mt-3 text-light">Loading map components...</p>
+        </div>
+      </div>
+    )
+  }
+);
 
 interface WeatherMapProps {
   onLocationSelect: (lat: number, lon: number) => void;
@@ -18,108 +33,11 @@ interface WeatherMapProps {
   };
 }
 
-// HeatMapLayer component for react-leaflet integration
-const HeatMapLayer = ({ data, options }: { data: any[], options: any }) => {
-  const map = useMap();
-  const heatLayerRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (!map || !window.L || !window.L.heatLayer) {
-      // Load Leaflet-heat script if not already loaded
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js';
-      script.async = true;
-      document.body.appendChild(script);
-      
-      script.onload = () => {
-        if (heatLayerRef.current) {
-          map.removeLayer(heatLayerRef.current);
-        }
-        
-        // @ts-ignore - L.heatLayer is added by the loaded script
-        heatLayerRef.current = L.heatLayer(data, options).addTo(map);
-      };
-      
-      return () => {
-        document.body.removeChild(script);
-      };
-    } else {
-      if (heatLayerRef.current) {
-        map.removeLayer(heatLayerRef.current);
-      }
-      
-      // @ts-ignore - L.heatLayer is added by the loaded script
-      heatLayerRef.current = L.heatLayer(data, options).addTo(map);
-    }
-    
-    return () => {
-      if (heatLayerRef.current) {
-        map.removeLayer(heatLayerRef.current);
-      }
-    };
-  }, [map, data, options]);
-
-  return null;
-};
-
-// HeatmapControls component
-const HeatmapControls = ({ onTypeChange, currentType }: { onTypeChange: (type: string) => void, currentType: string }) => {
-  const map = useMap();
-  
-  useEffect(() => {
-    // Create control container
-    const controlDiv = L.DomUtil.create('div', 'heatmap-controls');
-    
-    // Create buttons
-    controlDiv.innerHTML = `
-      <div class="btn-group" role="group" aria-label="Heatmap type">
-        <button type="button" id="heatmap-temperature" class="btn btn-sm btn-primary heatmap-type-btn ${currentType === 'temperature' ? 'active' : ''}">Temperature</button>
-        <button type="button" id="heatmap-precipitation" class="btn btn-sm btn-primary heatmap-type-btn ${currentType === 'precipitation' ? 'active' : ''}">Precipitation</button>
-        <button type="button" id="heatmap-humidity" class="btn btn-sm btn-primary heatmap-type-btn ${currentType === 'humidity' ? 'active' : ''}">Humidity</button>
-        <button type="button" id="heatmap-pressure" class="btn btn-sm btn-primary heatmap-type-btn ${currentType === 'pressure' ? 'active' : ''}">Pressure</button>
-      </div>
-    `;
-    
-    // Prevent click events from propagating to the map
-    L.DomEvent.disableClickPropagation(controlDiv);
-    
-    // Create custom control
-    const control = L.Control.extend({
-      options: {
-        position: 'topright'
-      },
-      onAdd: function() {
-        return controlDiv;
-      }
-    });
-    
-    // Add control to map
-    new control().addTo(map);
-    
-    // Add click event listeners
-    document.getElementById('heatmap-temperature')?.addEventListener('click', () => onTypeChange('temperature'));
-    document.getElementById('heatmap-precipitation')?.addEventListener('click', () => onTypeChange('precipitation'));
-    document.getElementById('heatmap-humidity')?.addEventListener('click', () => onTypeChange('humidity'));
-    document.getElementById('heatmap-pressure')?.addEventListener('click', () => onTypeChange('pressure'));
-    
-    // Cleanup on unmount
-    return () => {
-      document.getElementById('heatmap-temperature')?.removeEventListener('click', () => onTypeChange('temperature'));
-      document.getElementById('heatmap-precipitation')?.removeEventListener('click', () => onTypeChange('precipitation'));
-      document.getElementById('heatmap-humidity')?.removeEventListener('click', () => onTypeChange('humidity'));
-      document.getElementById('heatmap-pressure')?.removeEventListener('click', () => onTypeChange('pressure'));
-    };
-  }, [map, currentType, onTypeChange]);
-
-  return null;
-};
-
 // Main WeatherMap component
 const WeatherMap: React.FC<WeatherMapProps> = ({ onLocationSelect, selectedLocation }) => {
   const [heatmapData, setHeatmapData] = useState<any[]>([]);
   const [heatmapType, setHeatmapType] = useState<string>('temperature');
   const [loading, setLoading] = useState<boolean>(false);
-  const mapRef = useRef<any>(null);
 
   // Get heatmap gradient based on type
   const getHeatmapGradient = (type: string) => {
@@ -188,57 +106,11 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onLocationSelect, selectedLocat
     }
   };
 
-  // Map click handler
-  const handleMapClick = (e: any) => {
-    const { lat, lng } = e.latlng;
-    onLocationSelect(lat, lng);
-  };
-
-  // Handle map movement/zoom
-  const MapEvents = () => {
-    const map = useMap();
-    
-    useEffect(() => {
-      mapRef.current = map;
-      
-      const handleMoveEnd = () => {
-        if (map.getZoom() < 7) {
-          updateHeatmap(map.getBounds());
-        }
-      };
-      
-      const handleZoomEnd = () => {
-        updateHeatmap(map.getBounds());
-      };
-      
-      // Initial heatmap update
-      updateHeatmap(map.getBounds());
-      
-      // Add event listeners
-      map.on('moveend', handleMoveEnd);
-      map.on('zoomend', handleZoomEnd);
-      map.on('click', handleMapClick);
-      
-      // Cleanup
-      return () => {
-        map.off('moveend', handleMoveEnd);
-        map.off('zoomend', handleZoomEnd);
-        map.off('click', handleMapClick);
-      };
-    }, [map]);
-    
-    return null;
-  };
-
   // Handle heatmap type change
   const handleHeatmapTypeChange = (type: string) => {
     setHeatmapType(type);
-    if (mapRef.current) {
-      updateHeatmap(mapRef.current.getBounds());
-    }
   };
 
-  // Render client-side only
   return (
     <div className="card bg-dark">
       <div className="card-body">
@@ -261,30 +133,15 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onLocationSelect, selectedLocat
               </div>
             </div>
           )}
-          <MapContainer
-            center={[40, -95]}
-            zoom={4}
-            style={{ height: '100%', width: '100%' }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <HeatMapLayer
-              data={heatmapData}
-              options={{
-                radius: 25,
-                blur: 15,
-                maxZoom: 10,
-                gradient: getHeatmapGradient(heatmapType)
-              }}
-            />
-            {selectedLocation && (
-              <Marker position={[selectedLocation.lat, selectedLocation.lon]} />
-            )}
-            <HeatmapControls onTypeChange={handleHeatmapTypeChange} currentType={heatmapType} />
-            <MapEvents />
-          </MapContainer>
+          <MapWithComponents 
+            heatmapData={heatmapData}
+            heatmapType={heatmapType}
+            heatmapGradient={getHeatmapGradient(heatmapType)}
+            onHeatmapTypeChange={handleHeatmapTypeChange}
+            onBoundsChange={updateHeatmap}
+            onLocationSelect={onLocationSelect}
+            selectedLocation={selectedLocation}
+          />
         </div>
       </div>
     </div>

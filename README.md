@@ -1,122 +1,150 @@
-# Weather App with Heatmaps & AI
+# Weather App with AI Integration
 
-A modern weather application featuring interactive heatmaps and AI-powered weather descriptions. The app is built with a Next.js frontend and Flask backend.
+A comprehensive weather application that combines interactive data visualization, AI-powered insights, and user-friendly design.
 
 ## Features
 
-- **Real-time Weather Data**: Displays current weather conditions at any location
-- **Interactive Heatmaps**: Visual representation of temperature, precipitation, humidity, and pressure
-- **5-Day Forecast**: Detailed weather forecast with hourly predictions
-- **AI-Powered Descriptions**: Natural language descriptions of weather conditions using OpenAI
-- **Responsive Design**: Works on desktop and mobile devices
+- Real-time weather data display with OpenWeatherMap API
+- Interactive weather maps with heatmap visualization
+- AI-powered weather descriptions using OpenAI's GPT-4o model
+- Detailed weather forecasts with charts
+- Search functionality for global locations
+- Responsive design for all devices
 
 ## Technology Stack
 
-### Frontend
-- **Next.js** - React framework
-- **TypeScript** - Type-safe JavaScript
-- **Leaflet** - Interactive maps with heatmap plugin
-- **Chart.js** - Data visualization
-- **Bootstrap** - Responsive UI components
-
 ### Backend
-- **Flask** - Python web framework
-- **OpenWeatherMap API** - Weather data source
-- **OpenAI API** - AI-powered weather descriptions
-- **Flask-Caching** - API response caching
+- Python 3.9+
+- Flask
+- Flask-CORS for cross-origin resource sharing
+- Flask-Caching for optimized performance
+- OpenAI API for intelligent weather descriptions
+- Pytest for automated testing
+
+### Frontend
+- Next.js 14
+- React 18
+- TypeScript
+- Leaflet for interactive maps
+- Chart.js for data visualization
+- Bootstrap for responsive design
+- Jest for component testing
 
 ## Project Structure
 
 ```
-.
-├── frontend/               # Next.js frontend application
-│   ├── src/
-│   │   ├── app/            # Next.js app router
-│   │   ├── components/     # React components
-│   ├── public/             # Static assets
-│   ├── next.config.js      # Next.js configuration
-│   └── package.json        # Frontend dependencies
-│
-├── backend/                # Flask backend API
-│   ├── services/           # Service modules
-│   │   ├── weather_service.py  # Weather data handling
-│   │   └── ai_service.py       # AI integration
-│   ├── app.py              # Flask application
-│   ├── main.py             # Entry point
-│   └── requirements.txt    # Backend dependencies
+weather-app/
+├── backend/            # Flask backend
+│   ├── services/       # Service modules
+│   ├── tests/          # Backend tests
+│   ├── app.py          # Flask application
+│   ├── main.py         # Entry point
+│   └── requirements.txt # Python dependencies
+├── frontend/           # Next.js frontend
+│   ├── public/         # Static files
+│   ├── src/            # React components
+│   │   ├── app/        # Next.js app directory
+│   │   ├── components/ # React components
+│   ├── package.json    # Node dependencies
+│   └── next.config.js  # Next.js configuration
+├── render.yaml         # Render deployment configuration
+└── README.md           # Project documentation
 ```
 
-## Setup and Installation
+## Environment Variables
+
+### Backend (`.env` file)
+```
+# API Keys
+OPENAI_API_KEY=your-openai-api-key
+OPENWEATHER_API_KEY=your-openweather-api-key
+
+# Security
+SESSION_SECRET=your-secret-key
+
+# Deployment
+FLASK_ENV=development
+FRONTEND_URL=http://localhost:3000
+```
+
+### Frontend (`.env.local` file)
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
+```
+
+## Development Setup
 
 ### Prerequisites
-- Node.js 18.x or higher
-- Python 3.11 or higher
-- OpenWeatherMap API Key
-- OpenAI API Key
+- Node.js 18+
+- Python 3.9+
+- API keys for OpenWeatherMap and OpenAI
 
 ### Backend Setup
-1. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
+```bash
+# Navigate to backend directory
+cd backend
 
-2. Create a virtual environment:
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# Create a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+# Install dependencies
+pip install -r requirements.txt
 
-4. Create a `.env` file with the following variables:
-   ```
-   OPENWEATHER_API_KEY=your_openweather_api_key
-   OPENAI_API_KEY=your_openai_api_key
-   SESSION_SECRET=your_secret_key
-   ```
+# Create .env file with your API keys
 
-5. Run the Flask application:
-   ```
-   python main.py
-   ```
+# Start the development server
+python main.py
+```
 
 ### Frontend Setup
-1. Navigate to the frontend directory:
-   ```
-   cd frontend
-   ```
+```bash
+# Navigate to frontend directory
+cd frontend
 
-2. Install dependencies:
-   ```
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. Run the development server:
-   ```
-   npm run dev
-   ```
+# Create .env.local file with your configuration
 
-4. The application will be available at `http://localhost:3000`
+# Start the development server
+npm run dev
+```
+
+## Running Tests
+
+### Backend Tests
+```bash
+cd backend
+python -m pytest
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm test
+```
 
 ## Deployment
 
-### Backend Deployment
-- The Flask backend can be deployed to any platform that supports Python applications (Heroku, AWS, DigitalOcean, etc.)
-- Make sure to set the environment variables in your deployment environment
+### Backend (Render)
+1. Push your code to a GitHub repository
+2. Create a new Web Service on Render
+3. Connect to your GitHub repository
+4. Render will automatically detect the Python application
+5. Set the build command to `pip install -r backend/requirements.txt`
+6. Set the start command to `cd backend && gunicorn --bind 0.0.0.0:$PORT main:app`
+7. Add your environment variables (API keys, etc.)
 
-### Frontend Deployment
-- The Next.js frontend can be deployed to Vercel, Netlify, or any other platform that supports Next.js
-- Update the API endpoint in `next.config.js` to point to your deployed backend
+### Frontend (Vercel)
+1. Push your code to a GitHub repository
+2. Create a new project on Vercel
+3. Connect to your GitHub repository
+4. Select the frontend directory as the root
+5. Vercel will automatically detect the Next.js project
+6. Add your environment variables in the Vercel project settings
+7. Deploy
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- OpenWeatherMap for providing weather data
-- OpenAI for the AI capabilities
-- Leaflet and Chart.js for visualization components
+MIT
